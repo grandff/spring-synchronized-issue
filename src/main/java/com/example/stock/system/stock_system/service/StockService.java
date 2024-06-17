@@ -15,8 +15,9 @@ public class StockService {
         this.stockRepository = stockRepository;
     }
 
-    @Transactional
-    public void decrease(Long id, Long quantity) {
+    // synchornized를 붙여서 한개의 스레드만 접근하게 설정 
+    // @Transactional
+    public synchronized void decrease(Long id, Long quantity) {
         // stock 조회
         // 재고를 감소 시킨 뒤
         // 갱신된 값을 저장
