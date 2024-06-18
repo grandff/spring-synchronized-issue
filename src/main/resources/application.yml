@@ -8,6 +8,8 @@ spring:
         username: root
         password: 1234
         driver-class-name: com.mysql.cj.jdbc.Driver
+        hikari:
+            maximum-pool-size: 40
 
 # jpa에서 쿼리가 어떻게 나가는지 확인이 가능함
 logging:

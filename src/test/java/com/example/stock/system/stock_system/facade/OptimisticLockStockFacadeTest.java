@@ -1,4 +1,4 @@
-package com.example.stock.system.stock_system.service;
+package com.example.stock.system.stock_system.facade;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -16,14 +16,12 @@ import com.example.stock.system.stock_system.domain.Stock;
 import com.example.stock.system.stock_system.repository.StockRepository;
 
 @SpringBootTest
-class StockServiceTest {
+class OptimisticLockStockFacadeTest {
     @Autowired
-    private StockService stockService;
+    private OptimisticLockStockFacade optimisticLockStockFacade;
     @Autowired
     private StockRepository stockRepository;
-    @Autowired
-    private PessimisticLockStockService pessimisticLockStockService;
-
+    
     // 테스트를 위한 재고 데이터 추가
     // beforeeach annotation 활용
     @BeforeEach
@@ -36,22 +34,7 @@ class StockServiceTest {
     public void after() {
         stockRepository.deleteAll();
     }
-
-    // 재고로직 테스트케이스
-    @Test
-    void 재고감소() {
-        stockService.decrease(1L, 1L);
-
-        // 100 -1 = 99
-        try{
-            Stock stock= stockRepository.findById(1L).orElseThrow();                       
-            assertEquals(99L, stock.getQuantity());
-        }catch(Exception e){
-            e.printStackTrace();
-        }
-        
-    }
-
+    
     // 동시에 100개의 요청이 들어오는 테스트 케이스
     @Test
     void 동시에_100개의_요청() throws InterruptedException {
@@ -61,9 +44,10 @@ class StockServiceTest {
 
         for(int i=0; i<threadCount; i++){
             executorService.submit(()->{
-                try{
-                    // stockService.decrease(1L, 1L);
-                    pessimisticLockStockService.decrease(1L, 1L);
+                try{                    
+                    optimisticLockStockFacade.decrease(1L, 1L);
+                } catch (InterruptedException e) {                    
+                    e.printStackTrace();
                 } finally{
                     latch.countDown();
                 }
